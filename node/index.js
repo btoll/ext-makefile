@@ -1,12 +1,13 @@
 var argv = require('yargs').argv,
-    fs = require('fs'),
     getFiddle = require('getFiddle'),
     path = require('path'),
+    util = require('lib/util'),
     fiddle = argv.fiddle,
     filename = argv.file,
-    reExtract, extractScript, makeFile, writeFile, gen;
+    init = argv.init,
+    reExtract, extractScript, makeFile, gen;
 
-reExtract = exports.reExtract =  /(?:\n|.)*(window\.onload(?:\n|.)*?)<\/script>(?:\n|.)*/,
+reExtract = exports.reExtract = /(?:\n|.)*(window\.onload(?:\n|.)*?)<\/script>(?:\n|.)*/,
 
 extractScript = exports.extractExtract = function (html) {
     setTimeout(function () {
@@ -19,29 +20,15 @@ extractScript = exports.extractExtract = function (html) {
 makeFile = exports.makeFile = function* (fiddle, filename) {
     var str = yield getFiddle.download(fiddle, filename, gen);
     str = yield extractScript(str);
-    yield writeFile(filename, str);
-};
-
-writeFile = exports.writeFile = function (filename, str, callback) {
-    fs.writeFile(filename, str, function (err) {
-        if (err) {
-            err.message = 'Error: Something bad happened!';
-
-            if (callback) {
-                callback(err);
-            }
-        }
-
-        if (callback) {
-            callback(null);
-        }
-    });
+    yield util.writeFile(filename, str, function () {});
 };
 
     //HTML="<html>\n<head>\n<title>$TITLE</title>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"$CSS_HREF\" />\n<script type=\"text/javascript\" src=\"$JS_SRC\"></script>\n<script type=\"text/javascript\">\n</script>\n</head>\n\n<body>\n</body>\n</html>\n"
 
 if (require.main === module) {
-    if (!fiddle) {
+    if (init) {
+        util.init();
+    } else if (!fiddle) {
         console.log('Error: You must provide a Fiddle!');
     } else {
         if (!filename) {
