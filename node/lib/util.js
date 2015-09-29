@@ -1,24 +1,105 @@
+// TODO: What should be exported?
+
 var fs = require('fs'),
+    getFiddle = require('getFiddle'),
     inquirer = require('inquirer'),
     osenv = require('osenv'),
-    getConfigFile, locateConfigFile, showConfigFile,writeFile;
+    reToken = /(?:{(.+?)})/g,
+    gen, reExtract, extractScript, getConfigFile, getCssResource, locateConfigFile, makeFile,
+    makeTemplate, showConfigFile, writeFile, themes, tpl, cssMap, srcDirMap;
+
+function getTemplate(script, gen) {
+    getConfigFile(function (err, json, config) {
+        if (err) {
+            console.log(err.name, err.message);
+        } else {
+            inquirer.prompt([{
+                type: 'list',
+                name: 'version',
+                message: 'Select version:',
+                default: 'ext6',
+                choices: [
+                    {name: 'ExtJS 4', value: 'ext4'},
+                    {name: 'ExtJS 5', value: 'ext5'},
+                    {name: 'ExtJS 6', value: 'ext6'}
+                ]
+            }, {
+                type: 'list',
+                name: 'theme',
+                message: 'Select theme:',
+                default: json.theme,
+                choices: themes
+            }], function (answers) {
+                var version = answers.version,
+                    path = json[version] + srcDirMap[version];
+
+                gen.next(makeTemplate({
+                    css: path + getCssResource(version, answers.theme),
+                    js: path + 'ext.js',
+                    script: script
+                }));
+            });
+        }
+    });
+}
+
+reExtract = exports.reExtract = /(?:\n|.)*(window\.onload(?:\n|.)*?)<\/script>(?:\n|.)*/,
+
+tpl = exports.tpl = '<html>\n<head>\n<title>FIX ME</title>\n<link rel="stylesheet" type="text/css" href="{css}" />\n<script type="text/javascript" src="{js}"></script>\n<script type="text/javascript">\n{script}</script>\n</head>\n\n<body>\n</body>\n</html>\n\n';
+
+cssMap = {
+    ext4: 'resources/css/ext-all.css',
+    ext5: 'packages/ext-theme-{theme}/build/resources/ext-theme-{theme}-all.css',
+    ext6: 'build/classic/theme-{theme}/resources/theme-{theme}-all-debug.css'
+};
+
+srcDirMap = {
+    ext4: 'extjs/',
+    ext5: 'ext/',
+    ext6: 'ext/'
+};
+
+themes = exports.themes = [
+    {name: 'Classic', value: 'classic'},
+    {name: 'Crisp', value: 'crisp'},
+    {name: 'Gray', value: 'gray'},
+    {name: 'Neptune', value: 'neptune'}
+];
+
+getCssResource = function (version, theme) {
+    return cssMap[version].replace(reToken, function () {
+        return theme;
+    });
+};
 
 getConfigFile = exports.getConfigFile = function (callback, transform) {
-    var config = locateConfigFile(callback);
+    try {
+        var config = locateConfigFile();
 
-    fs.readFile(config, {
-        encoding: 'utf8'
-    }, function (err, data) {
-        if (err) {
-            callback(e);
-        }
+        fs.readFile(config, {
+            encoding: 'utf8'
+        }, function (err, data) {
+            if (err) {
+                callback(err);
+            }
 
-        if (transform !== false) {
-            data = JSON.parse(data);
-        }
+            if (transform !== false) {
+                data = JSON.parse(data);
+            }
 
-        callback(null, data, config);
-    });
+            callback(null, data, config);
+        });
+    } catch (e) {
+        console.log(e.name, e.message);
+    }
+};
+
+extractScript = exports.extractExtract = function (html) {
+    setTimeout(function () {
+        gen.next(html.replace(reExtract, function (a, $1) {
+            return $1;
+        }));
+    }, 0);
 };
 
 exports.init = function () {
@@ -33,14 +114,9 @@ exports.init = function () {
         ]
     }, {
         type: 'input',
-        name: 'webserver',
-        message: 'Add root location of web server:',
-        default: '/usr/local/www/'
-    }, {
-        type: 'input',
-        name: 'ext6',
-        message: 'Add location of Ext 6 repo:',
-        default: '/usr/local/www/SDK6/'
+        name: 'ext4',
+        message: 'Add location of Ext 4 repo:',
+        default: '/usr/local/www/SDK4/'
     }, {
         type: 'input',
         name: 'ext5',
@@ -48,9 +124,15 @@ exports.init = function () {
         default: '/usr/local/www/SDK5/'
     }, {
         type: 'input',
-        name: 'ext4',
-        message: 'Add location of Ext 4 repo:',
-        default: '/usr/local/www/SDK4/'
+        name: 'ext6',
+        message: 'Add location of Ext 6 repo:',
+        default: '/usr/local/www/SDK6/'
+    }, {
+        type: 'list',
+        name: 'theme',
+        message: 'Choose the default theme:',
+        default: 'classic',
+        choices: themes
     }, {
         type: 'input',
         name: 'bugs',
@@ -80,12 +162,8 @@ exports.init = function () {
     });
 };
 
-locateConfigFile = function (callback) {
-    var e = {
-            name: '\n.extmakefilerc does not exist!\n',
-            message: 'The current operation expects that the config file has already been created, do `extmakefile --init`.\n'
-        },
-        config = '.extmakefilerc';
+locateConfigFile = function () {
+    var config = '.extmakefilerc';
 
     // Here we're just checking for the existence of a config file (check locally first).
     try {
@@ -95,27 +173,51 @@ locateConfigFile = function (callback) {
             config = osenv.home() + '/' + config;
             fs.statSync(config);
         } catch (err) {
-            return callback(e);
+            throw({
+                name: '\n.extmakefilerc does not exist!\n',
+                message: 'The current operation expects that the config file has already been created, do `extmakefile --init`.\n'
+            });
         }
     }
 
     return config;
 };
 
+makeFile = exports.makeFile = function* (fiddle, filename) {
+    var script = '';
+
+    if (fiddle) {
+        script = yield getFiddle.download(fiddle, filename, gen);
+        script = yield extractScript(script);
+    }
+
+    script = yield getTemplate(script, gen);
+    yield writeFile(filename, script, function () {});
+};
+
+makeTemplate = exports.makeTemplate = function (sources) {
+    return tpl.replace(reToken, function (a, $1) {
+        return sources[$1];
+    });
+};
+
 showConfigFile = exports.showConfigFile = function (callback) {
     getConfigFile(function (err, json, config) {
         if (err) {
-            console.log(err.name);
-            console.log(err.message);
-            return;
-        }
+            console.log(err.name, err.message);
+        } else {
+            console.log(json);
 
-        console.log(json);
-
-        if (callback) {
-            callback(err, json, config);
+            if (callback) {
+                callback(err, json, config);
+            }
         }
     }, /*transform*/ false);
+};
+
+exports.startGenerator = function (fiddle, filename) {
+    gen = makeFile(fiddle, filename);
+    gen.next();
 };
 
 writeFile = exports.writeFile = function (filename, data, callback) {
