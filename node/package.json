@@ -1,0 +1,28 @@
+{
+  "name": "ext-makefile",
+  "version": "1.0.0",
+  "description": "Awesome tools to work with ExtJS and Sencha Fiddle",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/btoll/ext-makefile.git"
+  },
+  "keywords": [
+    "ExtJS",
+    "Sencha",
+    "Fiddle"
+  ],
+  "author": "Benjamin Toll",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/btoll/ext-makefile/issues"
+  },
+  "homepage": "https://github.com/btoll/ext-makefile#readme",
+  "dependencies": {
+    "osenv": "^0.1.3"
+  }
+}
+
