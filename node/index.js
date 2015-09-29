@@ -38,6 +38,8 @@ writeFile = exports.writeFile = function (filename, str, callback) {
     });
 };
 
+    //HTML="<html>\n<head>\n<title>$TITLE</title>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"$CSS_HREF\" />\n<script type=\"text/javascript\" src=\"$JS_SRC\"></script>\n<script type=\"text/javascript\">\n</script>\n</head>\n\n<body>\n</body>\n</html>\n"
+
 if (require.main === module) {
     if (!fiddle) {
         console.log('Error: You must provide a Fiddle!');
