@@ -1,4 +1,5 @@
 // TODO: What should be exported?
+// TODO: Improve logging.
 
 var fs = require('fs'),
     getFiddle = require('getFiddle'),
@@ -43,7 +44,7 @@ function getTemplate(script, gen) {
     });
 }
 
-reExtract = exports.reExtract = /(?:\n|.)*(window\.onload(?:\n|.)*?)<\/script>(?:\n|.)*/,
+reExtract = exports.reExtract = /(?:\n|.)*(window\.onload(?:\n|.)*?)<\/script>(?:\n|.)*/;
 
 tpl = exports.tpl = '<html>\n<head>\n<title>FIX ME</title>\n<link rel="stylesheet" type="text/css" href="{css}" />\n<script type="text/javascript" src="{js}"></script>\n<script type="text/javascript">\n{script}</script>\n</head>\n\n<body>\n</body>\n</html>\n\n';
 
@@ -133,19 +134,28 @@ exports.init = function () {
         message: 'Choose the default theme:',
         default: 'classic',
         choices: themes
-    }, {
-        type: 'input',
-        name: 'bugs',
-        message: 'Add location of bug directory:',
-        default: '/usr/local/www/extjs/bugs/'
     }], function (answers) {
-        var config = '.extmakefilerc';
+        var config = '.extmakefilerc',
+            v, answer;
 
         if (answers.global) {
             config = osenv.home() + '/' + config;
         }
 
         delete answers.global;
+
+        // Let's ensure the last character is a '/' since we're asking for directory locations.
+        for (v in answers) {
+            // srcDirMap doesn't have anything to do here other than serving to whitelist the keys
+            // we're interested in, i.e., ext4/5/6.
+            if (srcDirMap[v]) {
+                answer = answers[v];
+
+                if (answer.charAt(answer.length - 1) !== '/') {
+                    answers[v] += '/';
+                }
+            }
+        }
 
         writeFile(config, JSON.stringify(answers, null, 4), function (err) {
             if (err) {
@@ -192,7 +202,13 @@ makeFile = exports.makeFile = function* (fiddle, filename) {
     }
 
     script = yield getTemplate(script, gen);
-    yield writeFile(filename, script, function () {});
+    yield writeFile(filename, script, function (err) {
+        if (err) {
+            console.log('Error: Could not create file ' + filename);
+        } else {
+            console.log('Created file ' + filename);
+        }
+    });
 };
 
 makeTemplate = exports.makeTemplate = function (sources) {
