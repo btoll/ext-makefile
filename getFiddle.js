@@ -9,7 +9,7 @@ var argv = require('yargs').argv,
 function getFiddleDownloadUrl(fiddle) {
     // https://fiddle.sencha.com/#fiddle/u1u
     // https://fiddle.sencha.com/fiddle/u1u/preview
-    return 'https://fiddle.sencha.com/fiddle/' + path.basename(fiddle) + '/preview';
+    return `https://fiddle.sencha.com/fiddle/${path.basename(fiddle)}/preview`;
 }
 
 download = exports.download = function (fiddle, filename, iter) {
@@ -22,8 +22,6 @@ download = exports.download = function (fiddle, filename, iter) {
 
         https.get(getFiddleDownloadUrl(fiddle), function (res) {
             var dataStream = '';
-
-            //res.setEncoding('utf8');
 
             if (iter) {
                 res.on('data', function (data) {
