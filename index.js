@@ -1,6 +1,6 @@
 var argv = require('yargs').argv,
     inquirer = require('inquirer'),
-    util = require('lib/util'),
+    util = require('./lib/util'),
     fiddle = argv.fiddle,
     filename = argv.file,
     init = argv.init;
