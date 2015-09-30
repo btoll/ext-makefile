@@ -1,7 +1,10 @@
 {
   "name": "ext-makefile",
   "version": "0.1.0",
-  "description": "CLI tools to download fiddles from Sencha Fiddle and create local files in dev mode",
+  "description": "CLI tools to download fiddles from Sencha Fiddle for local debugging",
+  "bin": {
+    "ext-makefile": "./bin/ext-makefile"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
