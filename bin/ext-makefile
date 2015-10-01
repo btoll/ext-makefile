@@ -15,7 +15,7 @@ if (require.main === module) {
                 type: 'input',
                 name: 'filename',
                 message: 'Name of new file:',
-                default: 'foo.html'
+                default: 'index.html'
             }], function (answers) {
                 util.startGenerator(fiddle, answers.filename);
             });
