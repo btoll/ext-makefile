@@ -1,25 +1,31 @@
-# ext-makefile does all of the following things:
+## ext-makefile does all of the following things:
 
-+ Quickly creates an HTML document with sourced links to ExtJS JavaScript and CSS files (currently supports versions 4, 5 and 6).
++ Quickly creates a [stub HTML document][stub] with sourced links to ExtJS JavaScript and CSS files (currently supports versions 4, 5 and 6).
 
-+ Optionally downloads a Sencha Fiddle[fiddle] and inserts it into the new HTML document.
++ Optionally downloads a [Sencha Fiddle][fiddle] and inserts it into the new HTML document.
 
-+ Brews a poor cup of coffee.
++ Triggers smiles and high fives.
 
-[fiddle]: https://fiddle.sencha.com/#home
+### Why Would I Use This?
+I work for Sencha, and I needed a tool that performed all the steps of downloading a given Sencha Fiddle (that demonstrates a bug in the framework) to a local file so I could quickly get setup to debug it.
 
-## Installation
+Beyond that use case, I really have no idea.
+
+### Installation
 
 + Install [io.js]
-[io.js]: https://iojs.org/
 
 + `npm install https://github.com/btoll/ext-makefile.git -g`
 
-## Setup
+### Setup
 
 + `ext-makefile --init`
 
-## Example
+### Example
 
 + `ext-makefile --fiddle=https://fiddle.sencha.com/#fiddle/u1u`
+
+[stub]: resources/screenshots/stub.png
+[fiddle]: https://fiddle.sencha.com/#home
+[io.js]: https://iojs.org/
 
