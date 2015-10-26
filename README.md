@@ -13,8 +13,6 @@ Beyond that use case, I really have no idea.
 
 ### Installation
 
-+ Install [io.js]
-
 + `npm install https://github.com/btoll/ext-makefile.git -g`
 
 ### Setup
@@ -27,5 +25,4 @@ Beyond that use case, I really have no idea.
 
 [stub]: resources/screenshots/stub.png
 [fiddle]: https://fiddle.sencha.com/#home
-[io.js]: https://iojs.org/
 

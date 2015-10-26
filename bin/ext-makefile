@@ -1,4 +1,5 @@
-#!/usr/bin/env iojs
+#!/usr/bin/env node
+
 var argv = require('yargs').argv,
     inquirer = require('inquirer'),
     util = require('../lib/util'),
