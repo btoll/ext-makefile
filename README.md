@@ -23,6 +23,8 @@ Beyond that use case, I really have no idea.
 
 + `ext-makefile --fiddle=https://fiddle.sencha.com/#fiddle/u1u`
 
-[stub]: resources/screenshots/stub.png
+![ScreenShot](/screenshots/stub.png?raw=true)
+
+[stub]: screenshots/stub.png
 [fiddle]: https://fiddle.sencha.com/#home
 
