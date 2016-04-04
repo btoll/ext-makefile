@@ -25,6 +25,7 @@
   "homepage": "https://github.com/btoll/ext-makefile#readme",
   "dependencies": {
     "inquirer": "^0.10.1",
+    "logger": "git+https://github.com/btoll/logger.git",
     "osenv": "^0.1.3",
     "yargs": "^3.26.0"
   },
